@@ -21,7 +21,7 @@ int tokenval = NONE;
 
 void readFile(char *fileName) {
     file = fopen(fileName, "r");
-    if (!file) error(strcat(fileName + " File failed to open"));
+    if (!file) error(strcat(fileName, "File failed to open"));
 }
 
 void freeMemory() {
