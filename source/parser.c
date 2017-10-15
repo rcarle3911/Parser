@@ -11,17 +11,6 @@
 
 #include "parser.h"
 
-void statementblock();
-void statement();
-void decl();
-void assg();
-void expr();
-void oper();
-void iter();
-void sel();
-void condition();
-void match(int t);
-
 int lookahead;
 
 void parse() {

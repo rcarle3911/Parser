@@ -14,3 +14,13 @@
 #include "error.h"
 
 void parse();
+void statementblock();
+void statement();
+void decl();
+void assg();
+void expr();
+void oper();
+void iter();
+void sel();
+void condition();
+void match(int t);
