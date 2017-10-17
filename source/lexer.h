@@ -11,11 +11,6 @@
 
 #include "global.h"
 
-struct token {
-    char value[STRMAX];
-    int type;
-};
-
 void readFile(char *fileName);
 void freeMemory();
-struct token* lexan();
+int lexan();
