@@ -10,6 +10,7 @@
  */
 
 #include "global.h"
+#include "lexer.h"
 #include "symbol.h"
 #include "error.h"
 
@@ -17,7 +18,6 @@ char lexbuf[BSIZE];
 FILE *file;
 
 int lineno = 1;
-int tokenval = NONE;
 
 void readFile(char *fileName) {
     file = fopen(fileName, "r");
@@ -41,8 +41,9 @@ void freeMemory() {
     if (file) fclose(file);
 }
 
-int lexan() {
+struct token* lexan() {
     int t;
+    struct token* tok;
     while ((t = getc(file)) != EOF) {
 
         // Here is how the lexer allows for comments
@@ -53,17 +54,30 @@ int lexan() {
                 }
                 ungetc(t, file);
             } else {
+                tok = malloc(sizeof(*tok));
                 ungetc(t, file);
-                return '/';
+                tok->type = MULTDIVOP;
+                strcpy(tok->value,'/');
+                return tok;
             }
         }
         if (t == ' ' || t == '\t');
         else if (t == '\n') {
             lineno++;
         } else if (isdigit(t)) {
+            int b = 0;
+            while (isdigit(t)) {
+                lexbuf[b] = t;
+                t = getc(file);
+                b++;
+                if (b >= BSIZE) error("That number is way too big!");
+            }
+            tok = malloc(sizeof(*tok));
+            lexbuf[b] = EOS;
             ungetc(t, file);
-            fscanf(file, "%d", &tokenval);
-            return INT;
+            tok->type = INT;
+            strcpy(tok->value, lexbuf);
+            return tok;
         } else if (isalpha(t)) {
             int b = 0;
             while (isalnum(t) || t == '_') {
@@ -74,40 +88,81 @@ int lexan() {
                 if(b >= BSIZE) error("Exceeded character buffer size");
             }
             if (lexbuf[b - 1] == '_') error("An identifier cannot end with an underscore");
+            tok = malloc(sizeof(*tok));
             lexbuf[b] = EOS;
             ungetc(t, file);
-            if (!strcmp("while", lexbuf)) return WHILE;
-            else if (!strcmp("if", lexbuf)) return IF;
-            else if (!strcmp("main", lexbuf)) return MAIN;
-            else if (!strcmp("else", lexbuf)) return ELSE;
-            else if (!strcmp("int", lexbuf) || !strcmp("constant", lexbuf)) return TYPE;
-            else {
-                insert (lexbuf, ID);
-                return ID;
-            }
+            if (!strcmp("while", lexbuf)) tok->type = WHILE;
+            else if (!strcmp("if", lexbuf)) tok->type = IF;
+            else if (!strcmp("main", lexbuf)) tok->type = MAIN;
+            else if (!strcmp("else", lexbuf)) tok->type = ELSE;
+            else if (!strcmp("int", lexbuf) || !strcmp("constant", lexbuf)) tok->type = TYPE;
+            else tok->type = ID;
+            strcpy(tok->value, lexbuf);
+            return tok;
 
         } else {
+            tok = malloc(sizeof(*tok));
             switch (t) {
                 case '<':
+                    if ((t = getc(file)) == '=')
+                        strcpy(tok->value, "<=");
+                    else {
+                        ungetc(t, file);
+                        strcpy(tok->value, "<");
+                    }
+                    tok->type = CONOP;
+                    return tok;
                 case '>':
-                    if ((t = getc(file)) == '=');
-                    else ungetc(t, file);
-                    return CONOP;
+                    if ((t = getc(file)) == '=')
+                        strcpy(tok->value, ">=");
+                    else {
+                        ungetc(t, file);
+                        strcpy(tok->value, ">");
+                    }
+                    tok->type = CONOP;
+                    return tok;
                 case '=':
                     if ((t = getc(file)) == '=') {
-                        return CONOP;
+                        tok->type = CONOP;
+                        strcpy(tok->value, "==");
                     } else {
                         ungetc(t, file);
-                        return '=';
+                        tok->type = '=';
+                        strcpy(tok->value, "=");
                     }
+                    return tok;
                 case '!':
-                    if ((t = getc(file)) == '=') return CONOP;
-                    else ungetc(t, file);
-                    return '!';
+                    if ((t = getc(file)) == '=') {
+                        tok->type = CONOP;
+                        strcpy(tok->value, "!=");
+                    }
+                    else {
+                        ungetc(t, file);
+                        tok->type = '!';
+                    }
+                    return tok;
+                case '+':
+                    tok->type = ADDSUBOP;
+                    strcpy(tok->value, "+");
+                    return tok;
+                case '-':
+                    tok->type = ADDSUBOP;
+                    strcpy(tok->value, "-");
+                    return tok;
+                case '*':
+                    tok->type = MULTDIVOP;
+                    strcpy(tok->value, "*");
+                    return tok;
+                case '%':
+                    tok->type = MULTDIVOP;
+                    strcpy(tok->value, "%");
+                    return tok;
                 default:
-                    return t;
+                    tok->type = t;
+                    return tok;
             }
         }
     }
-    return DONE;
+    tok->type = DONE;
+    return tok;
 }

@@ -20,6 +20,7 @@
 #define EOS '\0'
 #define MAIN 256
 #define INT 257
+#define ADDSUBOP 258
 #define CONOP 259
 #define TYPE 260
 #define WHILE 261
@@ -27,6 +28,12 @@
 #define ELSE 263
 #define ID 264
 #define DONE 265
+#define DECLARATION 266
+#define ASSIGNMENT 267
+#define REGISTER 268
+#define MULTDIVOP 269
+#define ILLEGAL 270
 
 int tokenval;
 int lineno;
+char lexbuf[BSIZE];

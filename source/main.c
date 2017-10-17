@@ -12,6 +12,7 @@
 #include "global.h"
 #include "symbol.h"
 #include "parser.h"
+#include "codegen.h"
 
 int main( int argc, char *argv[] ) {
     if (argc < 2) {
@@ -19,6 +20,7 @@ int main( int argc, char *argv[] ) {
         printf("No arguments received");
     } else {
         readFile(argv[1]);  //Passes the file name to lexer, so it can open the file.
+        openFile(argv[1]);
         init();             //Builds the symbol table with reserved words.
         printf("Parsing... %s\n", argv[1]);
         parse();

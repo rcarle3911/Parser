@@ -8,3 +8,14 @@
  * Description: Generates register based code
  * Due: 10/26/2017
  */
+
+#include "global.h"
+
+void openFile(char s[]);
+void program(struct pnode *parent);
+void statements(struct pnode* root);
+void declaration(struct pnode *parent);
+void assignment();
+char* expression();
+void iterator();
+void selector();
