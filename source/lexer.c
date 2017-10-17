@@ -57,7 +57,7 @@ struct token* lexan() {
                 tok = malloc(sizeof(*tok));
                 ungetc(t, file);
                 tok->type = MULTDIVOP;
-                strcpy(tok->value,'/');
+                strcpy(tok->value,"/");
                 return tok;
             }
         }
