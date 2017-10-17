@@ -17,7 +17,7 @@
 FILE *out;
 int r = 0;
 
-openFile(char s[]) {
+void openFile(char s[]) {
     int len = strlen(s);
     if (len > STRMAX) error("Filename exceeds maximum allowable length");
     char strbuf[BSIZE];
@@ -33,7 +33,7 @@ openFile(char s[]) {
     if (!out) error(strcat(strbuf, " File failed to write"));
 }
 
-writeExp(struct pnode *exp) {
+void writeExp(struct pnode *exp) {
     //create register, assign it the expression, assign exp node the register value.
     struct pnode *operator = exp->right;
     struct pnode *operand = exp->right->right;
@@ -115,7 +115,7 @@ void statements(struct pnode* root) {
     }
 }
 
-program(struct pnode* prgrm) {
+void program(struct pnode* prgrm) {
     fprintf(out, "main:\n");
     statements(prgrm->left);
     fclose(out);

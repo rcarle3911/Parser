@@ -12,8 +12,8 @@
 #include "parser.h"
 #include "codegen.h"
 
-struct token* lookahead;
 struct pnode prgrm = {NULL, NULL, NULL};
+int lookahead;
 
 void parse() {
     lookahead = lexan();
@@ -21,7 +21,7 @@ void parse() {
     prgrm.type = MAIN;
     prgrm.left = statementblock(&prgrm);
     prgrm.right = NULL;
-    if (lookahead->type != DONE) error("Unexpected end of file");
+    if (lookahead!= DONE) error("Program ended unexpectedly");
     printf("Program is valid\n\n");
     program(&prgrm);
 }
@@ -31,9 +31,9 @@ struct pnode* statementblock(struct pnode *parent) {
     struct pnode *sblock = malloc(sizeof(*sblock));
     struct pnode *root = sblock;
     sblock->parent = parent;
-    while (lookahead->type != '}' && lookahead->type != DONE) {
+    while (lookahead != '}' && lookahead != DONE) {
         sblock->left = statement(sblock);
-        if (lookahead->type == '}' || lookahead->type == DONE) sblock->right = NULL;
+        if (lookahead == '}' || lookahead == DONE) sblock->right = NULL;
         else {
             parent = sblock;
             sblock = malloc(sizeof(*sblock));
@@ -45,7 +45,7 @@ struct pnode* statementblock(struct pnode *parent) {
 }
 
 struct pnode* statement(struct pnode *parent) {
-    switch (lookahead->type) {
+    switch (lookahead){
         case TYPE:
             return decl(parent);
         case ID:
@@ -71,15 +71,15 @@ struct pnode* decl(struct pnode *parent) {
     dec_left->left = type;
     dec_left->right = id;
 
-    type->type = lookahead->type;
-    strcpy(type->value, lookahead->value);
+    type->type = lookahead;
+    strcpy(type->value, lexbuf);
     match(TYPE);
 
-    id->type = lookahead->type;
-    strcpy(id->value, lookahead->value);
+    id->type = lookahead;
+    strcpy(id->value, lexbuf);
     match(ID);
 
-    if (lookahead->type != ';') {
+    if (lookahead != ';') {
         match('=');
         dec->right = expr(dec);
     }
@@ -94,8 +94,8 @@ struct pnode* assg(struct pnode* parent) {
     asg->type = ASSIGNMENT;
     asg->left = asg_left;
     asg_left->parent = asg;
-    asg_left->type = lookahead->type;
-    strcpy(asg_left->value, lookahead->value);
+    asg_left->type = lookahead;
+    strcpy(asg_left->value, lexbuf);
     match(ID);
     match('=');
     asg->right = expr(asg);
@@ -107,22 +107,22 @@ struct pnode* expr(struct pnode* parent) {
     exp->parent = parent;
     exp->left = NULL;
     exp->right = NULL;
-    switch (lookahead->type) {
+    switch (lookahead) {
         case '(':
             match('(');
             exp->left = expr(exp);
             match(')');
             break;
         case ADDSUBOP:
-            strcpy(exp->value, lookahead->value);
-            match(lookahead->type);
+            strcpy(exp->value, lexbuf);
+            match(lookahead);
         case INT:
-            strcat(exp->value, lookahead->value);
-            exp->type = lookahead->type;
+            strcat(exp->value, lexbuf);
+            exp->type = lookahead;
             match(INT);
             break;
         case ID:
-            exp->type = lookahead->type;
+            exp->type = lookahead;
             strcpy(exp->value, lexbuf);
             match(ID);
             break;
@@ -136,15 +136,15 @@ struct pnode* expr(struct pnode* parent) {
 // Having an operator is optional, but if it's there it must be followed by an expression.
 struct pnode* oper(struct pnode* parent) {
     struct pnode *op;
-    switch (lookahead->type) {
+    switch (lookahead) {
         case MULTDIVOP:
         case ADDSUBOP:
             op = malloc(sizeof(*op));
             op->parent = parent;
             op->left = NULL;
-            op->type = lookahead->type;
-            strcpy(op->value, lookahead->value);
-            match(lookahead->type);
+            op->type = lookahead;
+            strcpy(op->value, lexbuf);
+            match(lookahead);
             op->right = expr(op);
             return op;
         default:
@@ -162,8 +162,8 @@ struct pnode* condition(struct pnode* parent) {
 
 struct pnode* iter(struct pnode* parent) {
     struct pnode* iterator = malloc(sizeof(*iterator));
-    iterator->type = lookahead->type;
-    strcpy(iterator->value, lookahead->value);
+    iterator->type = lookahead;
+    strcpy(iterator->value, lexbuf);
     match(WHILE);
     iterator->left = condition(iterator);
     iterator->right = statementblock(iterator);
@@ -172,21 +172,20 @@ struct pnode* iter(struct pnode* parent) {
 struct pnode* sel(struct pnode* parent) {
     struct pnode* selector = malloc(sizeof(*selector));
     struct pnode* branch = malloc(sizeof(*branch));
-    selector->type = lookahead->type;
-    strcpy(selector->value, lookahead->value);
+    selector->type = lookahead;
+    strcpy(selector->value, lexbuf);
     match(IF);
     selector->left = condition(selector);
     selector->right = branch;
     branch->left = statementblock(branch);
-    if (lookahead->type == ELSE) {
+    if (lookahead== ELSE) {
         match(ELSE);
         branch->right = statementblock(branch);
     }
 }
 
 void match(int token) {
-    if (lookahead->type == token) {
-        free(lookahead);
+    if (lookahead == token) {
         lookahead = lexan();
     }
     else

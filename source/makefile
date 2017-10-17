@@ -18,5 +18,6 @@ error.o:error.c global.h
 
 codegen.o:codegen.c global.h
 	gcc -c codegen.c
+
 clean: 
 	rm final *.o
