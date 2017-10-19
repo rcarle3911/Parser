@@ -9,7 +9,6 @@
  * Due: 10/5/2017
  */
 
-#include <stdlib.h>
 #include "global.h"
 
 int error(char *m);

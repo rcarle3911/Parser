@@ -8,11 +8,9 @@
  * Description: Lexical analyzer
  * Due: 10/26/2017
  */
-
 #include "global.h"
-#include "lexer.h"
-#include "symbol.h"
 #include "error.h"
+#include "symbol.h"
 
 char lexbuf[BSIZE];
 FILE *file;

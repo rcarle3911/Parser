@@ -8,7 +8,6 @@
  * Description: Global declarations
  * Due: 10/5/2017
  */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -16,7 +15,7 @@
 
 #define STRMAX 100
 #define SYMMAX 100
-#define BSIZE 128
+#define BSIZE 100
 #define NONE -1
 #define EOS '\0'
 #define MAIN 256
@@ -33,7 +32,6 @@
 #define ASSIGNMENT 267
 #define REGISTER 268
 #define MULTDIVOP 269
-#define ILLEGAL 270
 
 int tokenval;
 int lineno;

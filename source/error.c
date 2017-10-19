@@ -9,7 +9,6 @@
  * Due: 10/26/2017
  */
 
-#include "global.h"
 #include "error.h"
 #include "lexer.h"
 

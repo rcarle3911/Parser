@@ -10,12 +10,13 @@
  */
 
 #include "global.h"
+#include "parser.h"
 
 void openFile(char s[]);
-void program(struct pnode *parent);
-void statements(struct pnode* root);
-void declaration(struct pnode *parent);
-void assignment();
-char* expression();
-void iterator();
-void selector();
+void program(struct pnode*);
+void statements(struct pnode*);
+void declaration(struct pnode*);
+void assignment(struct pnode*);
+char* expression(struct pnode*);
+void iterator(struct pnode*);
+void selector(struct pnode*);

@@ -10,6 +10,7 @@
  */
 
 #include "symbol.h"
+#include "error.h"
 
 struct entry *symtable[SYMMAX] = {0};
 

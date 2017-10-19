@@ -9,8 +9,6 @@
  * Due: 10/26/2017
  */
 
-#include "global.h"
-
 void readFile(char *fileName);
 void freeMemory();
 int lexan();

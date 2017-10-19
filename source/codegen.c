@@ -10,35 +10,20 @@
  */
 
 #include "global.h"
+#include "codegen.h"
 #include "error.h"
-#include "parser.h"
 #include "symbol.h"
 
 FILE *out;
 int r = 0;
-
-void openFile(char s[]) {
-    int len = strlen(s);
-    if (len > STRMAX) error("Filename exceeds maximum allowable length");
-    char strbuf[BSIZE];
-    int i = 0;
-    for (i = 0; i < len; i++) {
-        strbuf[i] = s[i];
-        if (s[i] == '.') break;
-    }
-    strbuf[i + 1] = 'o';
-    strbuf[i + 2] = EOS;
-
-    out = fopen(strbuf, "w");
-    if (!out) error(strcat(strbuf, " File failed to write"));
-}
+int l = 0;
 
 void writeExp(struct pnode *exp) {
     //create register, assign it the expression, assign exp node the register value.
     struct pnode *operator = exp->right;
     struct pnode *operand = exp->right->right;
     r++;
-    fprintf(out, "r%d := %s %s %s\n", r, exp->value, operator->value, operand->value);
+    fprintf(out, "\tr%d := %s %s %s\n", r, exp->value, operator->value, operand->value);
     exp->type = REGISTER;
     sprintf(exp->value, "r%d", r);
     exp->right = operand->right;
@@ -54,6 +39,7 @@ char* expression(struct pnode *exp) {
         if (exp->left) {
             exp->type = REGISTER;
             strcpy(exp->value, expression(exp->left));
+            exp->left = NULL;
         } else {
             exp = exp->right;
         }
@@ -81,6 +67,43 @@ char* expression(struct pnode *exp) {
     return exp->value;
 }
 
+void assignment(struct pnode *asg) {
+    fprintf(out, "\t%s := %s\n", asg->left->value, expression(asg->right));
+}
+
+//Expression destroys Parse tree. Unable to reevaluate for condition.
+void iterator(struct pnode *iter) {
+    int Lab1 = ++l;
+    int Lab2 = ++l;
+    int r1 = ++r;
+    int r2 = ++r;
+    char* exp1 = expression(iter->left->left);
+    char* exp2 = expression(iter->left->right);
+    fprintf(out, "\tgoto L%d\nL%d:", Lab1, Lab2);
+    statements(iter->right);
+    fprintf(out, "L%d:\tr%d := %s\n", Lab1, r1, exp1);
+    fprintf(out, "\tr%d := %s\n", r2, exp2);
+    fprintf(out, "\tr%d := r%d %s r%d\n\tif r%d goto L%d\n", r1, r1, iter->left->value, r2, r1, Lab2);
+}
+
+void selector(struct pnode *sel) {
+    int Lab1 = ++l;
+    int Lab2 = ++l;
+    int r1 = ++r;
+    int r2 = ++r;
+    char* exp1 = expression(sel->left->left);
+    char* exp2 = expression(sel->left->right);
+    fprintf(out, "\tr%d := %s\n", r1, exp1);
+    fprintf(out, "\tr%d := %s\n", r2, exp2);
+    fprintf(out, "\tr%d := r%d %s r%d\n", r1, r1, sel->left->value, r2);
+    fprintf(out, "\tif r%d goto L%d\n", r1, Lab1);
+    statements(sel->right->right);
+    fprintf(out, "\tgo to L%d\n", Lab2);
+    fprintf(out, "L%d: ", Lab1);
+    statements(sel->right->left);
+    fprintf(out, "L%d: ", Lab2);
+}
+
 void declaration(struct pnode *dec) {
     struct pnode *type = dec->left->left;
     struct pnode *id = dec->left->right;
@@ -94,29 +117,51 @@ void declaration(struct pnode *dec) {
         fprintf(out, ".word %s\n", id->value);    //This should have the variable name
     }
     if (exp) {                       //This checks if an assignment is present
-        fprintf(out, "%s := %s", id->value, expression(exp));
+        fprintf(out, "\t%s := %s\n", id->value, expression(exp));
     }
 }
 
-void statements(struct pnode* root) {
-    switch(root->left->type) {
+void statements(struct pnode *sblock) {
+    switch(sblock->left->type) {
         case DECLARATION:
-            declaration(root->left);
+            declaration(sblock->left);
             break;
         case ASSIGNMENT:
+            assignment(sblock->left);
+            break;
         case IF:
+            selector(sblock->left);
+            break;
         case WHILE:
+            iterator(sblock->left);
             break;
         default:
             error("Codegenerator failed");
     }
-    if (root->right) {
-        statements(root->right);
+    if (sblock->right) {
+        statements(sblock->right);
     }
 }
 
-void program(struct pnode* prgrm) {
+void program(struct pnode *prgrm) {
     fprintf(out, "main:\n");
     statements(prgrm->left);
+    fprintf(out, "goto exit");
     fclose(out);
+}
+
+void openFile(char s[]) {
+    int len = strlen(s);
+    if (len > STRMAX) error("Filename exceeds maximum allowable length");
+    char strbuf[BSIZE];
+    int i = 0;
+    for (i = 0; i < len; i++) {
+        strbuf[i] = s[i];
+        if (s[i] == '.') break;
+    }
+    strbuf[i + 1] = 'o';
+    strbuf[i + 2] = EOS;
+
+    out = fopen(strbuf, "w");
+    if (!out) error(strcat(strbuf, " File failed to write"));
 }

@@ -10,9 +10,9 @@
  */
 
 #include "global.h"
-#include "symbol.h"
-#include "parser.h"
+#include "lexer.h"
 #include "codegen.h"
+#include "symbol.h"
 
 int main( int argc, char *argv[] ) {
     if (argc < 2) {
@@ -23,7 +23,7 @@ int main( int argc, char *argv[] ) {
         openFile(argv[1]);
         init();             //Builds the symbol table with reserved words.
         printf("Parsing... %s\n", argv[1]);
-        parse();
+        program(parse());
         freeMemory();
         exit(0);
     }
