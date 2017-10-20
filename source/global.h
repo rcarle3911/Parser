@@ -32,7 +32,8 @@
 #define ASSIGNMENT 267
 #define REGISTER 268
 #define MULTDIVOP 269
+#define READ 270
+#define WRITE 271
 
-int tokenval;
 int lineno;
 char lexbuf[BSIZE];

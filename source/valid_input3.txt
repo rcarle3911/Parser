@@ -2,9 +2,9 @@ main {
 	int a;
 	int b;
 	int c;
-	constant END = 255;
+	int end = 255;
 	a = 7; b = 8;
-	while (END > a) {
+	while (end > a) {
 		a = 4 + 8;
 	}
 	if (b != 11) {

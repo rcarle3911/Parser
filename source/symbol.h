@@ -17,6 +17,7 @@ struct entry {
     int tokenType;
 };
 
+int getType(char* lexeme);
 int hash (char s[]);
 int lookup (char s[]);
 int insert (char s[], int tok);

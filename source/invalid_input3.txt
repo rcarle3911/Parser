@@ -1,8 +1,9 @@
 main {
 	int a123;
-	constant END = 255;
-	a = 7; b = 8;
-	while (END > a +) {
+	int end = 255;
+	a123 = 7; 
+	int b = 8;
+	while (END > a) {
 		a = 4 + 8;
 	}
 }

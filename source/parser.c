@@ -11,6 +11,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "error.h"
+#include "symbol.h"
 
 int lookahead;
 
@@ -64,9 +65,28 @@ struct pnode* statement() {
             return iter();
         case IF:
             return sel();
+        case READ:
+        case WRITE:
+            return rw();
         default:
             error("Expected a statement");
     }
+}
+
+struct pnode* rw() {
+    struct pnode *rewr = newPNode();
+    rewr->type = lookahead;
+    match(lookahead);
+    match('(');
+    if (!lookup(lexbuf)) {
+        char err[BSIZE + 40];
+        sprintf(err, "Variable %s has not been declared", lexbuf);
+    }
+    strcpy(rewr->value, lexbuf);
+    match(ID);
+    match(')');
+    match(';');
+    return rewr;
 }
 
 struct pnode* decl() {
@@ -83,6 +103,12 @@ struct pnode* decl() {
     strcpy(type->value, lexbuf);
     match(TYPE);
 
+    if (lookup(lexbuf)) {
+        char err[BSIZE + 40];
+        sprintf(err, "Variable %s is already declared", lexbuf);
+        error(err);
+    }
+    insert(lexbuf, lookahead);
     id->type = lookahead;
     strcpy(id->value, lexbuf);
     match(ID);
@@ -96,6 +122,10 @@ struct pnode* decl() {
 }
 
 struct pnode* assg() {
+    if (!lookup(lexbuf)) {
+        char err[BSIZE + 40];
+        sprintf(err, "Variable %s has not been declared", lexbuf);
+    }
     struct pnode* asg = newPNode();
     struct pnode* asg_left = newPNode();
     asg->type = ASSIGNMENT;

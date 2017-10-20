@@ -83,11 +83,8 @@ int lexan() {
             if (lexbuf[b - 1] == '_') error("An identifier cannot end with an underscore");
             lexbuf[b] = EOS;
             ungetc(t, file);
-            if (!strcmp("while", lexbuf)) return WHILE;
-            else if (!strcmp("if", lexbuf)) return IF;
-            else if (!strcmp("main", lexbuf)) return MAIN;
-            else if (!strcmp("else", lexbuf)) return ELSE;
-            else if (!strcmp("int", lexbuf) || !strcmp("constant", lexbuf)) return TYPE;
+            int type = getType(lexbuf);
+            if (type) return type;
             else return ID;
         } else {
             switch (t) {

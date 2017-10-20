@@ -22,6 +22,7 @@ struct pnode* newPNode();
 struct pnode* parse();
 struct pnode* statementblock();
 struct pnode* statement();
+struct pnode* rw();
 struct pnode* decl();
 struct pnode* assg();
 struct pnode* expr();

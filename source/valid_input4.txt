@@ -1,18 +1,14 @@
 main {
-	int roman_IX;
-	int banana_21 = 1;
-	int row21Num11 = 12;
-	constant MAX = 255;
-	while (banana_21 <= MAX) {
-		roman_IX = 0;
-		while (roman_IX + 1 < MAX * 10) {
-			if (banana_21 % 2 != 0) {
-				roman_IX = roman_IX + banana_21;
-			} else {
-				roman_IX = roman_IX + 1;
-			}
+	int i;
+	int j;
+	read (i);
+	read (j);
+	while (i != j) {
+		if (i > j) {
+			i = i - j;
+		} else {
+			j = j -i;
 		}
-		banana_21 = banana_21 + 1;
-		row21Num11 = 77 + (22 + (8 * (roman_IX + 2))) - row21Num11;
 	}
+	write (i);
 }

@@ -18,9 +18,10 @@ struct entry keywords[] = {
     NULL, "main", MAIN,
     NULL, "while", WHILE,
     NULL, "int", TYPE,
-    NULL, "constant", TYPE,
     NULL, "if", IF,
     NULL, "else", ELSE,
+    NULL, "read", READ,
+    NULL, "write", WRITE,
     NULL, "", 0
 };
 
@@ -69,6 +70,17 @@ int insert (char s[], int tok) {
 
 struct entry* getSym(int i) {
     return symtable[i];
+}
+
+int getType(char* lexeme) {
+    struct entry* sym = getSym(hash(lexeme));
+    while (sym) {
+        if (!strcmp(sym->lexeme, lexeme)) {
+            return sym->tokenType;
+        }
+        sym = sym->next;
+    }
+    return 0;
 }
 
 int init() {

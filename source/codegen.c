@@ -17,6 +17,7 @@
 FILE *out;
 int r = 0;
 int l = 0;
+int a = 0;
 
 void writeExp(struct pnode *exp) {
     //create register, assign it the expression, assign exp node the register value.
@@ -109,16 +110,7 @@ void declaration(struct pnode *dec) {
     struct pnode *id = dec->left->right;
     struct pnode *exp = dec->right;
 
-    //struct entry* sym = getSym(hash(dec->left->right->value));
-    if (lookup(id->value)) {
-        error("Illegal redeclaration of variable");
-    } else {
-        insert(id->value, id->type);
-        fprintf(out, ".word %s\n", id->value);    //This should have the variable name
-    }
-    if (exp) {                       //This checks if an assignment is present
-        fprintf(out, "\t%s := %s\n", id->value, expression(exp));
-    }
+    if (exp) fprintf(out, "\t%s := %s\n", id->value, expression(exp));
 }
 
 void statements(struct pnode *sblock) {
@@ -135,6 +127,12 @@ void statements(struct pnode *sblock) {
         case WHILE:
             iterator(sblock->left);
             break;
+        case READ:
+            readGen(sblock->left);
+            break;
+        case WRITE:
+            writeGen(sblock->left);
+            break;
         default:
             error("Codegenerator failed");
     }
@@ -143,10 +141,40 @@ void statements(struct pnode *sblock) {
     }
 }
 
+void readGen(struct pnode *rd) {
+    int addr = ++a;
+    fprintf(out, "\ta%d := &input\n", addr);
+    fprintf(out, "\tcall readint\n");
+    fprintf(out, "\t%s := rv\n", rd->value);
+}
+
+void writeGen(struct pnode *wr) {
+    int addr1 = ++a;
+    int r1 = ++r;
+    int addr2 = ++a;
+    fprintf(out, "\ta%d := &output\n", addr1);
+    fprintf(out, "\tr%d := %s\n", r1, wr->value);
+    fprintf(out, "\ta%d := r%d\n", addr2, r1);
+    fprintf(out, "\tcall writeint\n");
+    fprintf(out, "\ta%d := &output\n", addr1);
+    fprintf(out, "\tcall writeln\n");
+}
+
 void program(struct pnode *prgrm) {
+    fprintf(out, ".data\n");
+    for (int i = 0; i < SYMMAX; i++) {
+        struct entry* sym = getSym(i);
+        while (sym) {
+            if (sym->tokenType == ID) {
+                fprintf(out, ".word %s\n", sym->lexeme);
+            }
+            sym = sym->next;
+        }
+    }
+    fprintf(out, ".text\n");
     fprintf(out, "main:\n");
     statements(prgrm->left);
-    fprintf(out, "goto exit");
+    fprintf(out, "\tgoto exit");
     fclose(out);
 }
 
