@@ -78,12 +78,12 @@ void iterator(struct pnode *iter) {
     int Lab2 = ++l;
     int r1 = ++r;
     int r2 = ++r;
-    char* exp1 = expression(iter->left->left);
-    char* exp2 = expression(iter->left->right);
+
     fprintf(out, "\tgoto L%d\nL%d:", Lab1, Lab2);
     statements(iter->right);
-    fprintf(out, "L%d:\tr%d := %s\n", Lab1, r1, exp1);
-    fprintf(out, "\tr%d := %s\n", r2, exp2);
+    fprintf(out, "L%d:", Lab1);
+    fprintf(out, "\tr%d := %s\n", r1, expression(iter->left->left));
+    fprintf(out, "\tr%d := %s\n", r2, expression(iter->left->right));
     fprintf(out, "\tr%d := r%d %s r%d\n\tif r%d goto L%d\n", r1, r1, iter->left->value, r2, r1, Lab2);
 }
 
