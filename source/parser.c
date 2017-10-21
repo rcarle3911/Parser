@@ -82,6 +82,7 @@ struct pnode* rw() {
     if (!lookup(lexbuf)) {
         char err[BSIZE + 40];
         sprintf(err, "Variable %s has not been declared", lexbuf);
+        error(err);
     }
     strcpy(rewr->value, lexbuf);
     match(ID);
@@ -127,6 +128,7 @@ struct pnode* assg() {
     if (!lookup(lexbuf)) {
         char err[BSIZE + 40];
         sprintf(err, "Variable %s has not been declared", lexbuf);
+        error(err);
     }
     struct pnode* asg = newPNode();
     struct pnode* asg_left = newPNode();
@@ -159,6 +161,11 @@ struct pnode* expr() {
             match(INT);
             break;
         case ID:
+            if (!lookup(lexbuf)) {
+                char err[BSIZE + 40];
+                sprintf(err, "Variable %s has not been declared", lexbuf);
+                error(err);
+            }
             exp->type = lookahead;
             strcpy(exp->value, lexbuf);
             match(ID);
