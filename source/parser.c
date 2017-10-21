@@ -14,6 +14,7 @@
 #include "symbol.h"
 
 int lookahead;
+struct pnode *prgrm;
 
 struct pnode* newPNode() {
     struct pnode *node = malloc(sizeof(*node));
@@ -26,7 +27,7 @@ struct pnode* newPNode() {
 
 struct pnode* parse() {
     lookahead = lexan();
-    struct pnode *prgrm = newPNode();
+    prgrm = newPNode();
     prgrm->type = lookahead;
     strcpy(prgrm->value, lexbuf);
     match(MAIN);
@@ -95,6 +96,7 @@ struct pnode* decl() {
     struct pnode *type = newPNode();
     struct pnode *id = newPNode();
     dec->type = DECLARATION;
+    strcpy(dec->value, "declaration");
     dec->left = dec_left;
     dec_left->left = type;
     dec_left->right = id;
@@ -129,6 +131,7 @@ struct pnode* assg() {
     struct pnode* asg = newPNode();
     struct pnode* asg_left = newPNode();
     asg->type = ASSIGNMENT;
+    strcpy(asg->value, "assignment");
     asg->left = asg_left;
     asg_left->type = lookahead;
     strcpy(asg_left->value, lexbuf);
@@ -229,4 +232,12 @@ void match(int token) {
     }
     else
         error("Syntax error");
+}
+
+void freeParseTree(struct pnode *root) {
+    if (root->left) freeParseTree(root->left);
+
+    if (root->right) freeParseTree(root->right);
+
+    free(root);
 }

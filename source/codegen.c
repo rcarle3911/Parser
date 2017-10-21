@@ -19,6 +19,25 @@ int r = 0;
 int l = 0;
 int a = 0;
 
+void program(struct pnode *prgrm) {
+    fprintf(out, ".data\n");
+    for (int i = 0; i < SYMMAX; i++) {
+        struct entry* sym = getSym(i);
+        while (sym) {
+            if (sym->tokenType == ID) {
+                fprintf(out, ".word %s\n", sym->lexeme);
+            }
+            sym = sym->next;
+        }
+    }
+    fprintf(out, ".text\n");
+    fprintf(out, "main:\n");
+    statements(prgrm->left);
+    fprintf(out, "\tgoto exit");
+    freeParseTree(prgrm);
+    fclose(out);
+}
+
 void writeExp(struct pnode *exp) {
     //create register, assign it the expression, assign exp node the register value.
     struct pnode *operator = exp->right;
@@ -106,7 +125,6 @@ void selector(struct pnode *sel) {
 }
 
 void declaration(struct pnode *dec) {
-    struct pnode *type = dec->left->left;
     struct pnode *id = dec->left->right;
     struct pnode *exp = dec->right;
 
@@ -158,24 +176,6 @@ void writeGen(struct pnode *wr) {
     fprintf(out, "\tcall writeint\n");
     fprintf(out, "\ta%d := &output\n", addr1);
     fprintf(out, "\tcall writeln\n");
-}
-
-void program(struct pnode *prgrm) {
-    fprintf(out, ".data\n");
-    for (int i = 0; i < SYMMAX; i++) {
-        struct entry* sym = getSym(i);
-        while (sym) {
-            if (sym->tokenType == ID) {
-                fprintf(out, ".word %s\n", sym->lexeme);
-            }
-            sym = sym->next;
-        }
-    }
-    fprintf(out, ".text\n");
-    fprintf(out, "main:\n");
-    statements(prgrm->left);
-    fprintf(out, "\tgoto exit");
-    fclose(out);
 }
 
 void openFile(char s[]) {

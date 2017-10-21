@@ -20,5 +20,6 @@ void assignment(struct pnode*);
 char* expression(struct pnode*);
 void iterator(struct pnode*);
 void selector(struct pnode*);
+void writeExp(struct pnode *exp);
 void readGen(struct pnode*);
 void writeGen(struct pnode*);

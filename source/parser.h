@@ -30,4 +30,5 @@ struct pnode* oper();
 struct pnode* iter();
 struct pnode* sel();
 struct pnode* cond();
+void freeParseTree(struct pnode *root);
 void match(int t);
