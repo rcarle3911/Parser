@@ -25,6 +25,7 @@ int main( int argc, char *argv[] ) {
         printf("Parsing... %s\n", argv[1]);
         program(parse());
         freeMemory();
+        freeParseTree();
         exit(0);
     }
 }

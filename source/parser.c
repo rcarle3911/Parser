@@ -241,10 +241,14 @@ void match(int token) {
         error("Syntax error");
 }
 
-void freeParseTree(struct pnode *root) {
-    if (root->left) freeParseTree(root->left);
+void freeParseTree() {
+    freeTree(prgrm);
+}
 
-    if (root->right) freeParseTree(root->right);
+void freeTree(struct pnode *root) {
+    if (root->left) freeTree(root->left);
+
+    if (root->right) freeTree(root->right);
 
     free(root);
 }
