@@ -20,7 +20,8 @@ int l = 0;
 
 void program(struct pnode *prgrm) {
     fprintf(out, ".data\n");
-    for (int i = 0; i < SYMMAX; i++) {
+    int i = 0;
+    while (i < SYMMAX) {
         struct entry* sym = getSym(i);
         while (sym) {
             if (sym->tokenType == ID) {
@@ -28,6 +29,7 @@ void program(struct pnode *prgrm) {
             }
             sym = sym->next;
         }
+        i++;
     }
     fprintf(out, ".text\n");
     fprintf(out, "main:\n");
