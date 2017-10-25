@@ -5,7 +5,7 @@
  * Date: 10/15/2017
  * Platform/Compiler: CLion 2017.2.2 (MinGW version 5.0)
  * Professor: Dr. John Coffey
- * Description: Generates register based code
+ * Description: Generates register based code. Attempts to use as many registers as possible.
  * Due: 10/26/2017
  */
 
@@ -17,7 +17,6 @@
 FILE *out;
 int r = 0;
 int l = 0;
-int a = 0;
 
 void program(struct pnode *prgrm) {
     fprintf(out, ".data\n");
@@ -91,7 +90,6 @@ void assignment(struct pnode *asg) {
     fprintf(out, "\t%s := %s\n", asg->left->value, expression(asg->right));
 }
 
-//Expression destroys Parse tree. Unable to reevaluate for condition.
 void iterator(struct pnode *iter) {
     int Lab1 = ++l;
     int Lab2 = ++l;
@@ -160,21 +158,18 @@ void statements(struct pnode *sblock) {
 }
 
 void readGen(struct pnode *rd) {
-    int addr = ++a;
-    fprintf(out, "\ta%d := &input\n", addr);
+    fprintf(out, "\ta1 := &input\n");
     fprintf(out, "\tcall readint\n");
     fprintf(out, "\t%s := rv\n", rd->value);
 }
 
 void writeGen(struct pnode *wr) {
-    int addr1 = ++a;
     int r1 = ++r;
-    int addr2 = ++a;
-    fprintf(out, "\ta%d := &output\n", addr1);
+    fprintf(out, "\ta1 := &output\n");
     fprintf(out, "\tr%d := %s\n", r1, wr->value);
-    fprintf(out, "\ta%d := r%d\n", addr2, r1);
+    fprintf(out, "\ta2 := r%d\n", r1);
     fprintf(out, "\tcall writeint\n");
-    fprintf(out, "\ta%d := &output\n", addr1);
+    fprintf(out, "\ta1 := &output\n",);
     fprintf(out, "\tcall writeln\n");
 }
 
