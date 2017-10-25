@@ -11,10 +11,12 @@
 
 #include "error.h"
 #include "lexer.h"
+#include "parser.h"
 
 int error(char *m)
 {
     fprintf(stderr, "Program is invalid \nline %d: %s\n\n", lineno, m);
     freeMemory();
+    freeParseTree();
     exit(1);
 }
