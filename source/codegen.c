@@ -35,7 +35,6 @@ void program(struct pnode *prgrm) {
     fprintf(out, "main:\n");
     statements(prgrm->left);
     fprintf(out, "\tgoto exit");
-    freeParseTree(prgrm);
     fclose(out);
 }
 
